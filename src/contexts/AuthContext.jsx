@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true)
 
   const login = (newToken) => {
     localStorage.setItem("token", newToken);
@@ -26,9 +27,13 @@ export const AuthProvider = ({ children }) => {
         },
       });
       setUser(res.data);
+      setLoading(false)
     } catch (err) {
       console.error("Failed to fetch user, logging out...", err);
       logout();
+      setLoading(false)
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -36,6 +41,8 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (token && !user) {
       refreshUser();
+    } else {
+      setLoading(false)
     }
   }, [token]);
 
@@ -47,6 +54,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         refreshUser,
+        loading,
       }}
     >
       {children}
